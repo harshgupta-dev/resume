@@ -1,18 +1,60 @@
 @page
 @{
     ViewData["Title"] = "When NOT to Use Entity Framework (And Why I Chose ADO.NET) | Harsh Gupta";
+    var publishDate = "2025-01-10";
+    var modDate = "2025-01-10";
 }
+<meta name="description" content="Entity Framework is a productivity multiplier—until it isn't. Explore when explicit SQL control matters more than ORM convenience, and why ADO.NET is the right choice for high-stakes systems.">
+<meta property="og:title" content="When NOT to Use Entity Framework (And Why I Chose ADO.NET)">
+<meta property="og:description" content="Strategic guide to choosing between Entity Framework and ADO.NET for production systems. Written by a senior architect.">
+<meta property="article:published_time" content="@publishDate">
+<meta property="article:modified_time" content="@modDate">
+<meta property="article:author" content="Harsh Gupta">
+<meta property="article:section" content="Architecture">
+<meta name="twitter:label1" value="Reading time">
+<meta name="twitter:data1" value="8 min read">
+<meta name="twitter:label2" value="Written by">
+<meta name="twitter:data2" value="Harsh Gupta">
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
+  "headline": "When NOT to Use Entity Framework (And Why I Chose ADO.NET)",
+  "description": "Entity Framework is a productivity multiplier—until it isn't. Explore when explicit SQL control matters more than ORM convenience, and why ADO.NET is the right choice for high-stakes systems.",
+  "image": "https://harshgupta.dev/og-image.jpg",
+  "datePublished": "@publishDate",
+  "dateModified": "@modDate",
+  "author": {
+    "@@type": "Person",
+    "name": "Harsh Gupta",
+    "jobTitle": "Senior Full Stack Architect",
+    "url": "https://harshgupta.dev"
+  },
+  "publisher": {
+    "@@type": "Organization",
+    "name": "Harsh Gupta",
+    "logo": {
+      "@@type": "ImageObject",
+      "url": "https://harshgupta.dev/logo.jpg"
+    }
+  },
+  "articleBody": "Exploring the strategic choice between Entity Framework and ADO.NET for production systems...",
+  "keywords": "Entity Framework, ADO.NET, ORM, Architecture, Database, System Design, Production Systems"
+}
+</script>
+
 <section style="padding-top: 150px; min-height: 80vh;">
     <div class="container">
         <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
         
-        <article class="blog-post">
+        <article class="blog-post" itemscope itemtype="https://schema.org/BlogPosting">
             <div class="blog-meta" style="margin-bottom: 20px;">
-                <span class="blog-date">January 10, 2025</span>
-                <span class="blog-category">Architecture</span>
+                <span class="blog-date" itemprop="datePublished" content="@publishDate">January 10, 2025</span>
+                <span class="blog-category" itemprop="articleSection">Architecture</span>
             </div>
             
-            <h1 style="font-size: 3rem; margin-bottom: 30px;">When NOT to Use Entity Framework (And Why I Chose ADO.NET)</h1>
+            <h1 style="font-size: 3rem; margin-bottom: 30px;" itemprop="headline">When NOT to Use Entity Framework (And Why I Chose ADO.NET)</h1>
             
             <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
                 <p><strong>Entity Framework is a productivity multiplier—until it isn't. In certain systems, it becomes a liability.</strong></p>

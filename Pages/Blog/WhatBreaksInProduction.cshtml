@@ -1,18 +1,59 @@
 @page
 @{
     ViewData["Title"] = "What Actually Breaks in Production | Harsh Gupta";
+    var publishDate = "2025-03-12";
+    var modDate = "2025-03-12";
 }
+<meta name="description" content="From connection pool exhaustion to timezone nightmares—exploring the production failures that blindside even experienced teams and how to prevent them.">
+<meta property="og:title" content="What Actually Breaks in Production (and Why You Never See It in Dev)">
+<meta property="og:description" content="Real-world production failures: authorization middleware bugs, connection pools, caching race conditions, and system design patterns that prevent them.">
+<meta property="article:published_time" content="@publishDate">
+<meta property="article:modified_time" content="@modDate">
+<meta property="article:author" content="Harsh Gupta">
+<meta property="article:section" content="Operations">
+<meta name="twitter:label1" value="Reading time">
+<meta name="twitter:data1" value="8 min read">
+<meta name="twitter:label2" value="Written by">
+<meta name="twitter:data2" value="Harsh Gupta">
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
+  "headline": "What Actually Breaks in Production (and Why You Never See It in Dev)",
+  "description": "Real production failures: connection pool exhaustion, caching issues, race conditions, and system design patterns that prevent them.",
+  "image": "https://harshgupta.dev/og-image.jpg",
+  "datePublished": "@publishDate",
+  "dateModified": "@modDate",
+  "author": {
+    "@@type": "Person",
+    "name": "Harsh Gupta",
+    "jobTitle": "Senior Full Stack Architect",
+    "url": "https://harshgupta.dev"
+  },
+  "publisher": {
+    "@@type": "Organization",
+    "name": "Harsh Gupta",
+    "logo": {
+      "@@type": "ImageObject",
+      "url": "https://harshgupta.dev/logo.jpg"
+    }
+  },
+  "keywords": "Production Failures, Connection Pools, Caching, Race Conditions, System Design, Operations"
+}
+</script>
+
 <section style="padding-top: 150px; min-height: 80vh;">
     <div class="container">
         <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
         
-        <article class="blog-post">
+        <article class="blog-post" itemscope itemtype="https://schema.org/BlogPosting">
             <div class="blog-meta" style="margin-bottom: 20px;">
-                <span class="blog-date">March 12, 2025</span>
-                <span class="blog-category">Operations</span>
+                <span class="blog-date" itemprop="datePublished" content="@publishDate">March 12, 2025</span>
+                <span class="blog-category" itemprop="articleSection">Operations</span>
             </div>
             
-            <h1 style="font-size: 3rem; margin-bottom: 30px;">What Actually Breaks in Production (and Why You Never See It in Dev)</h1>
+            <h1 style="font-size: 3rem; margin-bottom: 30px;" itemprop="headline">What Actually Breaks in Production (and Why You Never See It in Dev)</h1>
             
             <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
                 <p>Your test suite has 95% coverage. Code review passed. Staging looks perfect. You deploy Friday afternoon, and everything seems fine. Monday morning, one user—<em>just one</em>—reports something impossible: their authenticated request returned someone else's data.</p>

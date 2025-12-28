@@ -1,7 +1,65 @@
 @page
 @{
-    ViewData["Title"] = "Blog | Harsh Gupta";
+    ViewData["Title"] = "Blog | Harsh Gupta - Production Systems, Architecture & Security";
 }
+<meta name="description" content="Engineering insights on production systems, architecture decisions, security vulnerabilities, and operational excellence from a senior architect with 12+ years experience.">
+<meta property="og:title" content="Blog - Harsh Gupta">
+<meta property="og:description" content="In-depth articles on .NET architecture, production failures, security vulnerabilities, and system design patterns written for senior engineers and architects.">
+<meta property="og:type" content="website">
+<meta name="twitter:label1" value="Articles">
+<meta name="twitter:data1" value="4 Published">
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "CollectionPage",
+  "name": "Blog",
+  "description": "Articles on production systems, architecture, security, and operations",
+  "url": "https://harshgupta.dev/Blog",
+  "mainEntity": {
+    "@@type": "ItemList",
+    "itemListElement": [
+      {
+        "@@type": "BlogPosting",
+        "position": 1,
+        "url": "https://harshgupta.dev/Blog/AdoNetVsEntityFramework",
+        "headline": "When NOT to Use Entity Framework (And Why I Chose ADO.NET)",
+        "description": "Strategic guide to choosing between Entity Framework and ADO.NET for production systems.",
+        "datePublished": "2025-01-10",
+        "author": {"@@type": "Person", "name": "Harsh Gupta"}
+      },
+      {
+        "@@type": "BlogPosting",
+        "position": 2,
+        "url": "https://harshgupta.dev/Blog/RareProductionFailures",
+        "headline": "The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix",
+        "description": "How statistically insignificant failures destroy user trust and design patterns that surface invisible bugs.",
+        "datePublished": "2025-01-28",
+        "author": {"@@type": "Person", "name": "Harsh Gupta"}
+      },
+      {
+        "@@type": "BlogPosting",
+        "position": 3,
+        "url": "https://harshgupta.dev/Blog/SecurityInProduction",
+        "headline": "Security Looks Clean on Paper. Production Makes It Ugly.",
+        "description": "How security architecture breaks under real user behavior and distributed state.",
+        "datePublished": "2025-02-15",
+        "author": {"@@type": "Person", "name": "Harsh Gupta"}
+      },
+      {
+        "@@type": "BlogPosting",
+        "position": 4,
+        "url": "https://harshgupta.dev/Blog/WhatBreaksInProduction",
+        "headline": "What Actually Breaks in Production (and Why You Never See It in Dev)",
+        "description": "Real production failures from connection pools to caching race conditions.",
+        "datePublished": "2025-03-12",
+        "author": {"@@type": "Person", "name": "Harsh Gupta"}
+      }
+    ]
+  }
+}
+</script>
+
 <section style="padding-top: 150px; min-height: 80vh;">
     <div class="container">
         <span class="section-subtitle reveal">Insights & Articles</span>

@@ -1,18 +1,59 @@
 @page
 @{
     ViewData["Title"] = "The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix | Harsh Gupta";
+    var publishDate = "2025-01-28";
+    var modDate = "2025-01-28";
 }
+<meta name="description" content="How statistically insignificant failures destroy user trust. Explore why dashboards hide rare bugs and what mature systems do differently to catch the 0.01% failures.">
+<meta property="og:title" content="The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix">
+<meta property="og:description" content="Deep dive into production failures affecting 0.01% of users, why monitoring misses them, and system design patterns that surface invisible bugs.">
+<meta property="article:published_time" content="@publishDate">
+<meta property="article:modified_time" content="@modDate">
+<meta property="article:author" content="Harsh Gupta">
+<meta property="article:section" content="Architecture">
+<meta name="twitter:label1" value="Reading time">
+<meta name="twitter:data1" value="10 min read">
+<meta name="twitter:label2" value="Written by">
+<meta name="twitter:data2" value="Harsh Gupta">
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
+  "headline": "The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix",
+  "description": "How statistically insignificant failures destroy user trust. Explore why dashboards hide rare bugs and what mature systems do differently.",
+  "image": "https://harshgupta.dev/og-image.jpg",
+  "datePublished": "@publishDate",
+  "dateModified": "@modDate",
+  "author": {
+    "@@type": "Person",
+    "name": "Harsh Gupta",
+    "jobTitle": "Senior Full Stack Architect",
+    "url": "https://harshgupta.dev"
+  },
+  "publisher": {
+    "@@type": "Organization",
+    "name": "Harsh Gupta",
+    "logo": {
+      "@@type": "ImageObject",
+      "url": "https://harshgupta.dev/logo.jpg"
+    }
+  },
+  "keywords": "Production Failures, Rare Bugs, System Design, Monitoring, Observability, Architecture"
+}
+</script>
+
 <section style="padding-top: 150px; min-height: 80vh;">
     <div class="container">
         <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
         
-        <article class="blog-post">
+        <article class="blog-post" itemscope itemtype="https://schema.org/BlogPosting">
             <div class="blog-meta" style="margin-bottom: 20px;">
-                <span class="blog-date">January 28, 2025</span>
-                <span class="blog-category">Architecture</span>
+                <span class="blog-date" itemprop="datePublished" content="@publishDate">January 28, 2025</span>
+                <span class="blog-category" itemprop="articleSection">Architecture</span>
             </div>
             
-            <h1 style="font-size: 3rem; margin-bottom: 30px;">The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix</h1>
+            <h1 style="font-size: 3rem; margin-bottom: 30px;" itemprop="headline">The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix</h1>
             
             <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
                 <p>Your production dashboard shows 99.99% success rate. Your monitoring is green. Your oncall rotation hasn't been paged in weeks. Then someone from the C-suite forwards an email: a customer who's been trying to complete a transaction for three days. They've called support. They've tried different browsers. Nothing works. For them, your system is 0% reliable.</p>

@@ -1,18 +1,59 @@
 @page
 @{
     ViewData["Title"] = "Security Looks Clean on Paper. Production Makes It Ugly | Harsh Gupta";
+    var publishDate = "2025-02-15";
+    var modDate = "2025-02-15";
 }
+<meta name="description" content="Security architecture breaks under real user behavior and distributed state. Explore dual auth models, OTP chains, and UI permissions that create production vulnerabilities.">
+<meta property="og:title" content="Security Looks Clean on Paper. Production Makes It Ugly.">
+<meta property="og:description" content="How security mechanisms fail when they collide with real user behavior. Deep dive into production security vulnerabilities and defense strategies.">
+<meta property="article:published_time" content="@publishDate">
+<meta property="article:modified_time" content="@modDate">
+<meta property="article:author" content="Harsh Gupta">
+<meta property="article:section" content="Security">
+<meta name="twitter:label1" value="Reading time">
+<meta name="twitter:data1" value="9 min read">
+<meta name="twitter:label2" value="Written by">
+<meta name="twitter:data2" value="Harsh Gupta">
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
+  "headline": "Security Looks Clean on Paper. Production Makes It Ugly.",
+  "description": "Security architecture breaks under real user behavior. Explore authentication, authorization, and distributed state vulnerabilities in production systems.",
+  "image": "https://harshgupta.dev/og-image.jpg",
+  "datePublished": "@publishDate",
+  "dateModified": "@modDate",
+  "author": {
+    "@@type": "Person",
+    "name": "Harsh Gupta",
+    "jobTitle": "Senior Full Stack Architect",
+    "url": "https://harshgupta.dev"
+  },
+  "publisher": {
+    "@@type": "Organization",
+    "name": "Harsh Gupta",
+    "logo": {
+      "@@type": "ImageObject",
+      "url": "https://harshgupta.dev/logo.jpg"
+    }
+  },
+  "keywords": "Security, Authentication, Authorization, Production Systems, Distributed Systems, Security Architecture"
+}
+</script>
+
 <section style="padding-top: 150px; min-height: 80vh;">
     <div class="container">
         <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
         
-        <article class="blog-post">
+        <article class="blog-post" itemscope itemtype="https://schema.org/BlogPosting">
             <div class="blog-meta" style="margin-bottom: 20px;">
-                <span class="blog-date">February 15, 2025</span>
-                <span class="blog-category">Security</span>
+                <span class="blog-date" itemprop="datePublished" content="@publishDate">February 15, 2025</span>
+                <span class="blog-category" itemprop="articleSection">Security</span>
             </div>
             
-            <h1 style="font-size: 3rem; margin-bottom: 30px;">Security Looks Clean on Paper. Production Makes It Ugly.</h1>
+            <h1 style="font-size: 3rem; margin-bottom: 30px;" itemprop="headline">Security Looks Clean on Paper. Production Makes It Ugly.</h1>
             
             <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
                 <p>Your security architecture passed the audit. Penetration testers found nothing critical. Your threat model accounts for every OWASP Top 10 vulnerability. The whiteboard diagrams show clean separation of concerns: JWT for authentication, role-based access control, encrypted data at rest and in transit.</p>
