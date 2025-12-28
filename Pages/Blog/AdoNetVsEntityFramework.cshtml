@@ -1,0 +1,165 @@
+@page
+@{
+    ViewData["Title"] = "When NOT to Use Entity Framework (And Why I Chose ADO.NET) | Harsh Gupta";
+}
+<section style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
+        
+        <article class="blog-post">
+            <div class="blog-meta" style="margin-bottom: 20px;">
+                <span class="blog-date">January 10, 2025</span>
+                <span class="blog-category">Architecture</span>
+            </div>
+            
+            <h1 style="font-size: 3rem; margin-bottom: 30px;">When NOT to Use Entity Framework (And Why I Chose ADO.NET)</h1>
+            
+            <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
+                <p><strong>Entity Framework is a productivity multiplier—until it isn't. In certain systems, it becomes a liability.</strong></p>
+                
+                <p>I'm not anti-EF. I've used it successfully on greenfield projects. I've seen it accelerate entire teams. But I've also inherited systems where EF was the bottleneck: queries that should take milliseconds taking seconds, performance problems that were invisible until production, and DBAs pulling their hair out because they had no idea what queries the application was actually running.</p>
+                
+                <p>The mistake wasn't choosing Entity Framework. The mistake was choosing it by default, without asking whether the system's constraints made it a good fit. After building financial systems, APIs handling millions of daily transactions, and migrating legacy databases owned by multiple teams, I've learned that some systems demand explicit SQL control. For those systems, ADO.NET isn't a step backward—it's the right tool.</p>
+                
+                <p>This isn't about framework wars. It's about matching tools to system requirements. And sometimes, that tool is ADO.NET.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">The Promise of Entity Framework</h2>
+                <p>Let's be fair. Entity Framework delivers real value:</p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li><strong>Rapid development:</strong> LINQ over SQL dramatically speeds up feature delivery</li>
+                    <li><strong>Change tracking:</strong> Automatic dirty tracking and lazy loading reduce boilerplate</li>
+                    <li><strong>Migrations:</strong> Version control for schema changes without manual SQL scripts</li>
+                    <li><strong>Developer onboarding:</strong> New engineers are productive immediately without deep SQL knowledge</li>
+                </ul>
+
+                <p>These are legitimate advantages. I've shipped features three times faster with EF than I would have hand-writing queries. The problem isn't that EF is bad. The problem is that <strong>choosing EF by default blinds you to its constraints</strong>.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Where Entity Framework Starts to Hurt</h2>
+                
+                <p><strong>1. Loss of SQL Control</strong></p>
+                <p>LINQ is powerful, but the SQL it generates is often opaque. You write what looks like a simple query—and EF generates a join nightmare behind the scenes. Your code looks efficient. The actual SQL is not.</p>
+                
+                <p>I debugged a system where a simple product search that should hit a single index was generating a five-table join with implicit conversions on the indexed column. The query took 800ms. Equivalent explicit SQL took 8ms. The difference? EF's join inference and lazy-loading logic. The code looked clean. The SQL was a disaster.</p>
+                
+                <p>Worse: you can't easily control index hints, query plans, or execution strategy. When a query becomes a bottleneck, EF's abstraction becomes your enemy. You're now fighting the tool to make the database behave the way you need it to.</p>
+                
+                <p><strong>2. Performance Surprises</strong></p>
+                <p>N+1 query problems are the canonical EF failure mode. Everyone knows about it. But even knowing about it, it's easy to miss. A LINQ expression that looks efficient materializes a collection, and suddenly you've got a thousand individual queries inside a loop.</p>
+                
+                <p>Over-fetching is worse because it's silent. Your query fetches 50 columns. Your code uses 3. Those extra columns consume memory, network bandwidth, and database I/O. Over-fetching doesn't show up as a database problem—it shows up as mysterious memory pressure under load.</p>
+                
+                <p>Query translation overhead adds up. EF Core improved this significantly, but you're still paying the cost of LINQ→SQL translation, parameterization, and plan caching. Hand-written SQL eliminates an abstraction layer and gains predictability.</p>
+                
+                <p><strong>3. Debugging & Observability Gaps</strong></p>
+                <p>During a production incident, you need to know exactly what your database is doing. With EF, there's a translation layer between your code and reality. You see a LINQ query in the logs. The actual SQL is opaque until you enable EF logging—which adds overhead you can't afford in production.</p>
+                
+                <p>Worse: logs don't match execution. EF logs the query it <em>compiled</em>. The actual query your database ran might be different due to plan caching, query hints, or execution context. In a crisis, these gaps are paralyzing.</p>
+                
+                <p>Performance regressions are often EF-specific. A migration changes change-tracking behavior. A new LINQ expression pattern generates inefficient SQL. The regression only manifests under production load. Your staging environment missed it because staging data patterns don't match production.</p>
+                
+                <p><strong>4. Change Tracking Overhead</strong></p>
+                <p>EF's change tracking is convenient until it's a bottleneck. Every entity in the context consumes memory for tracking metadata. Long-lived contexts accumulate entities and tracking overhead. You optimize by using <code>AsNoTracking()</code>—which means you've explicitly opted out of the feature you're paying for.</p>
+                
+                <p>Accidental updates are the silent killer. An entity loaded in a tracking context, passed through multiple layers, modified somewhere unexpected, and saved by code that thought it was just reading. With ADO.NET, every mutation is explicit. With EF, implicit changes hide in plain sight.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Enterprise & Regulated System Constraints</h2>
+                <p>Entity Framework assumes database ownership. Your team owns the schema, controls migrations, and iterates freely. Enterprise reality is different.</p>
+                
+                <p><strong>Shared databases:</strong> Multiple teams own different schemas in the same database. EF migrations become a coordination nightmare. You can't freely evolve your schema because another team depends on its current structure. You can't use EF's change tracking because you're not sure what other teams are doing.</p>
+                
+                <p><strong>Legacy schemas:</strong> The database has 20-year-old conventions you can't change. Tables without primary keys. Naming schemes that don't map to C# conventions. Stored procedures that are the actual business logic, with SQL that's been tuned for a decade. EF fights you at every step because the schema doesn't align with ORM expectations.</p>
+                
+                <p><strong>PCI / Financial compliance:</strong> Audit requirements demand you know exactly when, how, and why data changed. Entity Framework's implicit change tracking doesn't generate the kind of explicit audit logs compliance requires. You end up writing manual audit code <em>on top of</em> EF's change tracking—defeating the purpose of using an ORM.</p>
+                
+                <p><strong>DBA ownership:</strong> In regulated environments, DBAs own the database. They control queries, execution plans, and performance tuning. They don't want an ORM generating unpredictable queries. They want explicit, reviewable SQL. EF becomes an organizational problem, not just a technical one.</p>
+                
+                <p><strong>Stored procedures as business logic:</strong> Some legacy systems implement business rules in stored procedures. EF can call stored procedures, but it can't call them idiomatically. You're using EF as a thin wrapper around SQL—at which point you're paying for features you don't use and losing the clarity of explicit SQL.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Transaction & Connection Management Reality</h2>
+                <p>Entity Framework abstracts away transaction management. Usually, that's convenient. In high-stakes systems, it's dangerous.</p>
+                
+                <p><strong>Explicit transaction boundaries:</strong> Financial systems need transactions that are explicit and auditable. You need to know exactly when a transaction started, what it's doing, and when it commits. EF's implicit transaction management—where transactions are created and committed based on <code>SaveChanges()</code> calls—obscures these boundaries.</p>
+                
+                <p><strong>Deadlock analysis:</strong> When a transaction deadlocks, you need to analyze the exact queries that were running, the locks they held, and the order they were executed. EF abstracts this away. With ADO.NET, every query is explicit and loggable.</p>
+                
+                <p><strong>Connection pooling visibility:</strong> Under load, connection pool exhaustion is a real issue. With ADO.NET, you see exactly how long connections are held, when they're returned to the pool, and whether your code is properly disposing them. With EF, the context owns the connection lifetime—and if your context lives too long, connections leak back to the pool in a corrupted state.</p>
+                
+                <p><strong>Retry strategies:</strong> Distributed databases have transient failures. Retries must be idempotent and aware of transaction state. EF's implicit transaction handling makes it harder to implement sophisticated retry strategies without accidentally replaying side effects.</p>
+                
+                <p>In systems where transaction correctness is non-negotiable, explicit SQL management wins.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Why I Chose ADO.NET</h2>
+                <p>In systems where correctness beats convenience, I want zero abstraction surprises. I want to know exactly what query is running, why, and what it costs. ADO.NET delivers that.</p>
+                
+                <p><strong>Deterministic SQL execution:</strong> The SQL I write is the SQL that runs. No implicit joins. No query translation mysteries. No "somehow this generated a different execution plan." What you see is what you get.</p>
+                
+                <p><strong>Full performance control:</strong> I can specify indexes hints, use NOLOCK where appropriate, control join order, and tune queries based on actual execution plans. When performance matters, this control is non-negotiable.</p>
+                
+                <p><strong>Easier production debugging:</strong> When a query is slow, I look at the actual SQL. I can run it directly against the database. I can analyze the execution plan without going through EF's logging infrastructure. Debugging is immediate and certain.</p>
+                
+                <p><strong>Alignment with operations:</strong> DBAs understand SQL. They can review queries, optimize them, and predict performance. With ADO.NET, the application and database teams speak the same language. With EF, there's a translator—and that translator is often the bottleneck during incidents.</p>
+                
+                <p><strong>No hidden side effects:</strong> Every read is explicitly a read. Every write is explicitly a write. Change tracking doesn't surprise you with unexpected updates. Context lifetime doesn't silently corrupt connection state. What you read in code is what the system does.</p>
+                
+                <p><strong>Legacy system integration:</strong> When you're working with systems that have mature SQL infrastructure, stored procedures, and DBA governance, ADO.NET doesn't fight you. It cooperates.</p>
+                
+                <p>Yes, ADO.NET requires more code. Yes, it lacks LINQ's expressiveness. But in systems where performance, correctness, and operability matter, that verbosity is clarity. That explicitness is safety.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">When Entity Framework Is the Right Choice</h2>
+                <p>I'm not saying "always use ADO.NET." That would be just as dogmatic as "always use EF."</p>
+                
+                <p><strong>Internal tools and dashboards:</strong> Quick reporting tools and internal admin panels. Performance is not critical. User expectations are reasonable. EF's productivity multiplier is valuable here.</p>
+                
+                <p><strong>CRUD-heavy applications:</strong> Systems that are mostly create, read, update, delete operations without complex business logic. EF shines when the database is a data store, not the rules engine.</p>
+                
+                <p><strong>Rapid prototypes:</strong> Building a proof-of-concept to validate an idea before investing in architecture. EF's speed is the entire point.</p>
+                
+                <p><strong>Greenfield applications with full schema control:</strong> New systems where you own the database entirely, can evolve the schema freely, and have no legacy constraints. This is where EF's design assumptions are valid.</p>
+                
+                <p><strong>Small-to-medium scale systems:</strong> Applications handling hundreds of requests per second, not millions. Performance optimization matters less than developer velocity. EF is a great fit.</p>
+                
+                <p>The pattern is clear: EF is ideal when the application is the priority and the database is a supporting player. ADO.NET is ideal when the database is critical and the application must serve it faithfully.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Decision Framework: Choose Deliberately</h2>
+                <p>Stop treating EF as the default. Evaluate your system's constraints:</p>
+                
+                <p><strong>Choose Entity Framework when:</strong></p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li>Developer velocity matters more than database optimization</li>
+                    <li>You own and control the entire schema</li>
+                    <li>Performance is not a critical constraint</li>
+                    <li>The database is a supporting service, not the core system</li>
+                    <li>Your team prefers LINQ and OOP abstractions</li>
+                </ul>
+
+                <p><strong>Choose ADO.NET when:</strong></p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li>Performance is critical (high volume, low latency)</li>
+                    <li>Database ownership is shared or restricted</li>
+                    <li>The schema is legacy and cannot be refactored</li>
+                    <li>You need deterministic SQL and explicit control</li>
+                    <li>Audit and compliance requirements demand transparency</li>
+                    <li>Your DBA team needs to review and optimize queries</li>
+                    <li>The database is the system's core component, not a utility</li>
+                </ul>
+
+                <p><strong>Hybrid approach:</strong> Some large systems use both. EF for simple CRUD operations and reporting. ADO.NET for critical paths and performance-sensitive operations. This hybrid approach is entirely valid—as long as the decision is deliberate.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Closing: Maturity Is About Choice</h2>
+                <p>Entity Framework optimizes for developer convenience. It assumes you want fast feature delivery and are willing to accept opaque queries and performance unpredictability in exchange.</p>
+                
+                <p>ADO.NET optimizes for system correctness. It assumes you want explicit control, predictable behavior, and alignment with database operations, and are willing to write more code in exchange.</p>
+                
+                <p>Neither is universally correct. Mature systems choose deliberately based on risk, scale, and control requirements. They re-evaluate defaults instead of assuming EF is always right. They talk to their DBAs, consider their performance constraints, and ask whether an abstraction layer serves or hinders their system's goals.</p>
+                
+                <p>The question isn't "EF or ADO.NET?" The question is: "What does my system require, and which tool aligns with those requirements?"</p>
+                
+                <p>If your answer is ADO.NET, that's not a step backward. It's a deliberate, strategic choice rooted in production reality.</p>
+
+                <p style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-style: italic; color: var(--text-muted);">
+                    Navigating ORM choices for a complex system? <a href="/#contact" style="color: var(--accent);">Let's discuss architecture trade-offs</a>.
+                </p>
+            </div>
+        </article>
+    </div>
+</section>

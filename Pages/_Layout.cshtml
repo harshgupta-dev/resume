@@ -1,0 +1,83 @@
+@{
+    var title = ViewData["Title"] as string ?? "Harsh Gupta | Senior Architect";
+}
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="https://schema.org/Person">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+    <meta name="description" content="Harsh Gupta — Senior Full Stack Architect with 12+ years modernizing .NET ecosystems, architecting secure financial systems, and driving operational excellence.">
+    <meta name="author" content="Harsh Gupta">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="Harsh Gupta, Senior Architect, Full Stack, .NET, C#, Microservices, Security, OAuth, JWT, Azure, Docker, Serilog, SQL Server, Architecture, Resume, Bhopal">
+    <meta property="og:title" content="Harsh Gupta | Senior Full Stack Architect">
+    <meta property="og:description" content="12+ years in scalable, secure .NET architectures, financial portals, and operational excellence.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_IN">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Harsh Gupta | Senior Full Stack Architect">
+    <meta name="twitter:description" content="12+ years in scalable, secure .NET architectures and operations.">
+    <link rel="stylesheet" href="/css/site.css" />
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "Person",
+      "name": "Harsh Gupta",
+      "jobTitle": "Senior Full Stack Architect",
+      "description": "12+ years modernizing .NET ecosystems, architecting secure financial systems, and driving operational excellence.",
+      "email": "mailto:guptaharsh2190@gmail.com",
+      "telephone": "+91-9425362268",
+      "address": {
+        "@@type": "PostalAddress",
+        "addressLocality": "Bhopal",
+        "addressRegion": "Madhya Pradesh",
+        "addressCountry": "IN"
+      },
+      "worksFor": {
+        "@@type": "Organization",
+        "name": "CoreCard Software Pvt. Ltd."
+      },
+      "alumniOf": {
+        "@@type": "CollegeOrUniversity",
+        "name": "Manav Bharti University, Solan"
+      },
+      "skills": [
+        ".NET 8 / Core", "C#", "Microservices", "Onion Architecture", "Web API", "SOLID",
+        "OAuth", "JWT", "AES Encryption", "Azure", "Docker", "Serilog", "APM",
+        "Angular", "TypeScript", "Android (Java)", "ESRI ArcGIS", "Firebase",
+        "SQL Server", "T-SQL Optimization", "ADO.NET", "SSRS"
+      ],
+      "knowsAbout": [
+        "Enterprise Security & Governance",
+        "System Modernization",
+        "Operational Excellence",
+        "Business Logic Engineering"
+      ]
+    }
+    </script>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <div class="logo" itemprop="name"><a href="/">Harsh Gupta<span>.</span></a></div>
+            <div class="nav-links">
+              <a href="/#summary">Summary</a>
+              <a href="/#experience">Experience</a>
+              <a href="/#skills">Skills</a>
+              <a href="/#education">Education</a>                <a href="/Blog">Blog</a>              <a href="/#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer style="text-align:center; padding:50px 0; font-size:0.85rem; color:#888; border-top: 1px solid #e0e0e0;">
+        <p>&copy; 2025 Harsh Gupta. All Rights Reserved.</p>
+    </footer>
+
+    <script src="/js/site.js"></script>
+</body>
+</html>

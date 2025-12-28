@@ -1,0 +1,161 @@
+@page
+@{
+    ViewData["Title"] = "What Actually Breaks in Production | Harsh Gupta";
+}
+<section style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <a href="/Blog" style="color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block;">← Back to Blog</a>
+        
+        <article class="blog-post">
+            <div class="blog-meta" style="margin-bottom: 20px;">
+                <span class="blog-date">March 12, 2025</span>
+                <span class="blog-category">Operations</span>
+            </div>
+            
+            <h1 style="font-size: 3rem; margin-bottom: 30px;">What Actually Breaks in Production (and Why You Never See It in Dev)</h1>
+            
+            <div class="blog-content" style="max-width: 800px; font-size: 1.1rem; line-height: 1.9; color: var(--text-main);">
+                <p>Your test suite has 95% coverage. Code review passed. Staging looks perfect. You deploy Friday afternoon, and everything seems fine. Monday morning, one user—<em>just one</em>—reports something impossible: their authenticated request returned someone else's data.</p>
+                
+                <p>You can't reproduce it. Logs show nothing. It happened once in 10,000 requests. But it happened.</p>
+                
+                <p>After 12+ years debugging production systems, I've learned that the scariest bugs aren't the ones that crash spectacularly. They're the ones that fail silently, intermittently, and only under conditions you'll never see in development.</p>
+                
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">The Myth of "It Works on My Machine"</h2>
+                <p>We joke about this phrase, but there's a deeper truth: dev environments are fundamentally incapable of surfacing the bugs that matter most in production.</p>
+                
+                <p>Why? Because the dangerous bugs aren't deterministic. They emerge from:</p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li><strong>Race conditions</strong> that only appear under concurrent load</li>
+                    <li><strong>Stateful components</strong> that behave differently after hours of uptime</li>
+                    <li><strong>Cache coherency issues</strong> across distributed servers</li>
+                    <li><strong>Edge cases in middleware pipelines</strong> that only trigger with specific request combinations</li>
+                </ul>
+
+                <p>Your laptop runs one thread. One user. One timezone. Fresh state on every restart. Production runs hundreds of threads, thousands of users, distributed state, and weeks of uptime between deployments.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Why Low-Frequency Failures Are the Most Dangerous</h2>
+                <p>A bug that crashes 100% of requests gets caught in staging. A bug that fails 0.01% of requests? That's 10 failures per 100,000 requests. At scale, that's dozens of angry customers—but still too rare to reliably reproduce.</p>
+                
+                <p>These bugs are insidious because:</p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li>They're invisible in aggregate metrics (99.99% success rate looks great)</li>
+                    <li>They're dismissed as "user error" or "network glitches"</li>
+                    <li>They compound over time, eroding trust faster than obvious crashes</li>
+                    <li>They bypass traditional testing—you can't write a unit test for "sometimes fails"</li>
+                </ul>
+
+                <p>The real danger? These bugs often involve <strong>security boundaries</strong>. Authorization checks that fail open 1% of the time. Session tokens that occasionally leak across requests. Encryption that silently degrades to plaintext under specific conditions.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Real Example: Authorization Middleware Behaving Inconsistently</h2>
+                <p><strong>The symptom:</strong> Once every few thousand requests, an authenticated user gets a 401 Unauthorized—despite having a valid JWT token. Or worse: they get access to resources they shouldn't.</p>
+                
+                <p><strong>The root cause:</strong> Authorization middleware running in the wrong order, or caching authorization decisions without considering token expiry. Or a race condition where the HTTP context isn't fully populated when the auth check runs.</p>
+                
+                <p>I've seen this pattern repeatedly:</p>
+                <pre style="background: #f5f5f5; padding: 20px; border-left: 3px solid var(--accent); overflow-x: auto; margin: 20px 0;">
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCustomMiddleware(); // This mutates claims!
+                </pre>
+                
+                <p>The custom middleware adds claims based on database lookups. But if a subsequent request hits a cached response, those claims aren't populated. Your authorization logic now makes decisions on incomplete data.</p>
+                
+                <p><strong>Why you never see it in dev:</strong> Dev doesn't cache. Dev doesn't have load balancers distributing requests across multiple servers with slightly different middleware execution timings. Dev restarts frequently, clearing any corrupt state.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Real Example: Connection Lifecycle Issues Under Load</h2>
+                <p><strong>The symptom:</strong> Application runs fine for hours, then suddenly all database queries start timing out. CPU is low. Memory is stable. Restart the app, everything's fine again.</p>
+                
+                <p><strong>The root cause:</strong> Connection pool exhaustion from connections that aren't properly disposed—but only under specific conditions.</p>
+                
+                <p>Here's the killer pattern:</p>
+                <pre style="background: #f5f5f5; padding: 20px; border-left: 3px solid var(--accent); overflow-x: auto; margin: 20px 0;">
+try {
+    var connection = await GetConnectionAsync();
+    var result = await connection.QueryAsync(sql);
+    return result;
+} catch (SqlException ex) {
+    // Log and rethrow - but connection never disposed!
+    throw;
+}
+                </pre>
+                
+                <p>In dev, with 1-2 concurrent requests, the pool never exhausts. In production, under sustained load, those leaked connections accumulate. After 3-4 hours, the pool is empty. Every new request waits for a connection that will never become available.</p>
+                
+                <p><strong>The fix:</strong> Always use <code>using</code> statements or <code>ConfigureAwait(false)</code> with proper disposal. But the real lesson? This bug is literally impossible to catch without production-scale load testing.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Real Example: Cached Responses vs Real Execution Paths</h2>
+                <p><strong>The symptom:</strong> API returns stale data, but only for some users, and only sometimes. Cache headers look correct. Invalidation logic seems fine.</p>
+                
+                <p><strong>The root cause:</strong> Multiple layers of caching (application cache, reverse proxy, CDN) with slightly different invalidation rules. A cache entry gets invalidated at the app level but not at the CDN edge. Or the reverse: CDN purges, but the app still serves from memory.</p>
+                
+                <p>I've debugged scenarios where:</p>
+                <ul style="list-style: disc; margin-left: 40px; margin-bottom: 30px;">
+                    <li>User A updates their profile</li>
+                    <li>App invalidates local cache and database updates</li>
+                    <li>User A's next request hits a different server (load balancer) that still has the old cached value</li>
+                    <li>After 30 seconds, that server's cache expires and refreshes</li>
+                    <li>But during that window, User A saw their old data and lost trust in the system</li>
+                </ul>
+
+                <p><strong>Why dev misses this:</strong> Dev is one server. One cache instance. No load balancer distributing requests. No CDN layers. Cache invalidation appears to work perfectly.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Designing Systems That Assume Silent Failures</h2>
+                <p>The solution isn't to eliminate these bugs—that's impossible. The solution is to architect systems that <strong>assume components will fail silently</strong> and handle it gracefully.</p>
+                
+                <p><strong>1. Fail closed, never open:</strong> If authorization can't definitively grant access, deny it. If a cache read fails, bypass the cache—don't serve stale data.</p>
+                
+                <p><strong>2. Add redundant validation:</strong> Don't trust that upstream middleware did its job. Re-validate authorization at the service layer. Re-check business rules at the data layer.</p>
+                
+                <p><strong>3. Use correlation IDs everywhere:</strong> Every request gets a unique ID that flows through logs, traces, and error messages. When that 0.01% failure happens, you need to reconstruct the exact execution path.</p>
+                
+                <p><strong>4. Implement health checks that go deep:</strong> Don't just check "is the process running?" Check: Can we acquire a database connection? Is the cache coherent? Are all middleware components registered correctly?</p>
+                
+                <p><strong>5. Poison pill detection:</strong> If a specific request repeatedly fails, isolate it. Log the full request context, but don't let it take down the entire system.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">Observability Strategies That Actually Surface These Issues</h2>
+                <p>Traditional monitoring focuses on aggregates: average response time, error rate, throughput. But low-frequency failures disappear in the averages.</p>
+                
+                <p>What actually works:</p>
+                
+                <p><strong>Structured logging with rich context:</strong></p>
+                <pre style="background: #f5f5f5; padding: 20px; border-left: 3px solid var(--accent); overflow-x: auto; margin: 20px 0;">
+Log.ForContext("UserId", userId)
+   .ForContext("RequestId", correlationId)
+   .ForContext("CacheHit", cacheHit)
+   .ForContext("MiddlewareStack", middlewareOrder)
+   .Information("Authorization check completed");
+                </pre>
+                
+                <p>Now you can query: "Show me all authorization checks where CacheHit=true and the result was Unauthorized." Pattern emerge.</p>
+                
+                <p><strong>Distributed tracing with spans for every decision point:</strong> Not just "request started" and "request completed"—trace authorization checks, cache lookups, database queries, external API calls. When something fails intermittently, you can see <em>which component</em> in the pipeline behaved differently.</p>
+                
+                <p><strong>Anomaly detection on percentiles, not averages:</strong> Don't alert on P50 or even P95. Alert on P99.9. That's where the intermittent failures live. If P99.9 response time spikes from 200ms to 5 seconds, something's wrong—even if P50 looks fine.</p>
+                
+                <p><strong>Sample and store edge cases:</strong> When a request fails in an unexpected way, capture the full HTTP context—headers, claims, cache state, middleware execution order. Store it for forensic analysis. You can't reproduce the bug, but you can analyze the conditions that triggered it.</p>
+                
+                <p><strong>Chaos engineering that targets middleware:</strong> Don't just kill pods. Randomly inject delays in middleware execution. Randomly drop claims from auth tokens. Randomly corrupt cache entries. The bugs you're looking for only emerge under these non-deterministic conditions.</p>
+
+                <h2 style="font-size: 1.8rem; margin-top: 50px; margin-bottom: 20px;">The Uncomfortable Truth</h2>
+                <p>You will never catch these bugs before production. Your test suite can't simulate the chaos of real-world load. Your staging environment will never have the scale, the concurrency, the uptime, or the edge cases of production.</p>
+                
+                <p>The best you can do is:</p>
+                <ol style="list-style: decimal; margin-left: 40px; margin-bottom: 30px;">
+                    <li>Build observability so deep that when the 0.01% failure happens, you can reconstruct it</li>
+                    <li>Design systems that degrade gracefully when components fail silently</li>
+                    <li>Deploy incrementally—canary releases, feature flags, blue-green deployments</li>
+                    <li>Accept that production <em>is</em> your testing environment, and instrument accordingly</li>
+                </ol>
+
+                <p>The bugs that break production aren't the ones that crash loudly. They're the ones that fail quietly, intermittently, and only when the perfect storm of conditions align.</p>
+                
+                <p>Are you watching for them?</p>
+
+                <p style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-style: italic; color: var(--text-muted);">
+                    Dealing with intermittent production failures that you can't reproduce? <a href="/#contact" style="color: var(--accent);">Let's talk observability strategy</a>.
+                </p>
+            </div>
+        </article>
+    </div>
+</section>

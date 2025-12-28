@@ -1,0 +1,50 @@
+@page
+@{
+    ViewData["Title"] = "Blog | Harsh Gupta";
+}
+<section style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <span class="section-subtitle reveal">Insights & Articles</span>
+        <h2 class="reveal">Blog</h2>
+        
+        <div class="reveal" style="margin-top: 60px; display: grid; gap: 40px;">
+            
+            <article class="blog-item">
+                <div class="blog-meta">
+                    <span class="blog-date">January 10, 2025</span>
+                    <span class="blog-category">Architecture</span>
+                </div>
+                <h3><a href="/Blog/AdoNetVsEntityFramework">When NOT to Use Entity Framework (And Why I Chose ADO.NET)</a></h3>
+                <p>Entity Framework is a productivity multiplier—until it isn't. Exploring when explicit SQL control matters more than ORM convenience, and the systems that demand ADO.NET.</p>
+            </article>
+
+            <article class="blog-item">
+                <div class="blog-meta">
+                    <span class="blog-date">January 28, 2025</span>
+                    <span class="blog-category">Architecture</span>
+                </div>
+                <h3><a href="/Blog/RareProductionFailures">The 0.01% Bug: Why Rare Production Failures Are the Hardest to Fix</a></h3>
+                <p>How statistically insignificant failures destroy user trust, why dashboards lie, and what it takes to build systems that surface the invisible bugs hiding in production's long tail.</p>
+            </article>
+
+            <article class="blog-item">
+                <div class="blog-meta">
+                    <span class="blog-date">February 15, 2025</span>
+                    <span class="blog-category">Security</span>
+                </div>
+                <h3><a href="/Blog/SecurityInProduction">Security Looks Clean on Paper. Production Makes It Ugly.</a></h3>
+                <p>Dual auth models, OTP chains, and UI permissions—how security architecture breaks when it collides with real user behavior, distributed state, and the messy reality of production systems.</p>
+            </article>
+
+            <article class="blog-item">
+                <div class="blog-meta">
+                    <span class="blog-date">March 12, 2025</span>
+                    <span class="blog-category">Operations</span>
+                </div>
+                <h3><a href="/Blog/WhatBreaksInProduction">What Actually Breaks in Production (and Why You Never See It in Dev)</a></h3>
+                <p>From connection pool exhaustion to timezone nightmares—exploring the production failures that blindside even experienced teams and how to prevent them.</p>
+            </article>
+
+        </div>
+    </div>
+</section>
